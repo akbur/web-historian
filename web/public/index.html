@@ -2,11 +2,36 @@
 <html>
 <head>
   <link rel="stylesheet" type="text/css" href="styles.css" />
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.1.4.js"></script>
 </head>
 <body>
   Enter a URL here:
   <form method="POST">
-    <input type="input" name="url"></input>
+    <input type="input" class="url" name=""></input>
+    <input type="submit" class="submit"></input>
   </form>
+  
+  <script type="text/javascript">
+
+  $(".submit").on('click', function(){
+      var urlValue = $(".url").val();
+      $.ajax({
+        url: "http://127.0.0.1:8080",
+        type: 'POST',
+        //data: JSON.stringify(urlValue),
+        data: urlValue,
+        //contentType: 'application/json',
+        contentType: 'text/plain',
+        success: function (data) {
+          console.log('URL Sent', data);
+        },
+        error: function (data) {
+          console.error('Error: Not send');
+        }
+      });
+    })
+
+  </script>
+
 </body>
 </html>
