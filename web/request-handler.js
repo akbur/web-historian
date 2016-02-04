@@ -3,14 +3,13 @@ var archive = require('../helpers/archive-helpers');
 var helper = require('./http-helpers');
 var fs = require('fs');
 // require more modules/folders here!
-
+var urlArray = [];
 exports.handleRequest = function (req, res) {
   
   if (req.method==="GET") {
     if (req.url==="/") {
       res.writeHead(200, helper.headers);
-      helper.serveAssets(res, './public/index.html', function(fileContents){
-        console.log("1");
+      helper.serveAssets(res, __dirname + '/public/index.html', function(fileContents){
         console.log(fileContents);
         res.end(fileContents);
       });
@@ -19,38 +18,62 @@ exports.handleRequest = function (req, res) {
       res.end("error")
     }
   } else if (req.method==="POST") {
+    //save urls in an array
     req.on("data", function(data) {
-      console.log(data.toString()); //do something with data
+      urlArray.push(data.toString());
       res.writeHead(200, helper.headers);
-      res.end();
+      console.log(urlArray);
+      fs.appendFile(archive.paths.list, data.toString() + '\n', function(err){
+        if (err) {console.log(err); };
+        res.end();
+      });
+
     });
+    //write urls to archives/sites.txt
   }  
 };
 
 
+exports.readListOfUrls = function(){
+};
 
+exports.isUrlInList = function(){
+};
 
-/*
-res.write(fileContents);
-.on('write', function(res) {
-  res.end();
-})
+exports.addUrlToList = function(){
+};
 
+exports.isUrlArchived = function(){
+};
 
-function sendResp(res, x){
-  res.end(x)
-}
+exports.downloadUrls = function(){
+};
+
 
 //res.end(archive.paths.list);
 
-fs.readFile('./public/index.html', 'utf8', function(err, contents) {
-  res.end(contents);
-})
+/*
+fs.appendFile('message.txt', 'data to append', (err) => {
+  if (err) throw err;
+  console.log('The "data to append" was appended to file!');
+});
 
-exports.serveAssets = function(res, asset, callback) {
-  fs.readFile(asset, 'utf8', function(err, contents){
-    callback(contents);
-  });
-};
+
+
+var stream = fs.createReadStream(‘my-file.txt’);
+stream.on(‘data’, function(chunk){
+  stream.open()
+
+  // do something with part of the file
+  //open file once and then call write for each entry
+});
+stream.on(‘end’, function(chunk){
+  // reached the end
+});
+
+
+
+
+
 
 */
