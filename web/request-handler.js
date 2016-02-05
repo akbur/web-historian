@@ -2,7 +2,7 @@ var path = require('path');
 var archive = require('../helpers/archive-helpers');
 var helper = require('./http-helpers');
 var fs = require('fs');
-var request = require('request');
+
 // require more modules/folders here!
 var urlArray = [];
 exports.handleRequest = function (req, res) {
@@ -25,34 +25,35 @@ exports.handleRequest = function (req, res) {
       res.writeHead(200, helper.headers);
       var url = data.toString();
       
-      //test
-      request({
-        url: 'http://'+ url,
-        }, function(err, res, body) {
-          console.log(body);
-          //console.log(path.join(helper.archivedSites, url, ".html"));
-          fs.writeFile(archive.paths.archivedSites+'/'+url+".html", body, function(error){
-            if (error) {console.log("error");};
-          });
-        } 
-      );
 
-
-      //end test
-
-      //in sites.txt?
       archive.isUrlInList(url, function(found) {
-        console.log('found',found);
-        if (found) {
-          //is it archived?
-            //if yes      
-              //display page
-            //if no
-              //display loading
-        } else {
+
+        //if in sites.txt file
+        if (found) {        
+          console.log('found',found);
+          //if archived
+          if (archive.isUrlArchived(url)) {
+            console.log('arvhiced');
+            //TODO display page
+          } else { //if not archived
+            console.log('not arvhiced');
+            //display loading
+            var filePath = path.join(archive.paths.siteAssets, 'loading.html');
+            helper.serveAssets(res, filePath, function(fileContents) {
+              console.log(fileContents);
+              res.write(fileContents);
+            });
+            archive.downloadUrls(url);
+          }      
+        } else { //if not found
           //append to sites.txt        
           archive.addUrlToList(data);
           //display loading
+          console.log("archiving");
+          var filePath = path.join(archive.paths.siteAssets, 'loading.html');
+          helper.serveAssets(res, filePath, function(fileContents) {
+            res.end(fileContents);
+          });
         }
       });
         res.end();

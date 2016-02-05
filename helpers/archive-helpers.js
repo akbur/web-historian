@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
+var request = require('request');
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -12,7 +13,7 @@ var _ = require('underscore');
 exports.paths = {
   siteAssets: path.join(__dirname, '../web/public'),
   archivedSites: path.join(__dirname, '../archives/sites'),
-  list: path.join(__dirname, '../archives/sites.txt')
+  list: path.join(__dirname, '../archives/sites.txt'),
 };
 
 // Used for stubbing paths for tests, do not modify
@@ -49,8 +50,18 @@ exports.addUrlToList = function(data){
   });
 };
 
-exports.isUrlArchived = function(){
+exports.isUrlArchived = function(url){
+  console.log(!!(exports.paths.archivedSites+'/'+url+".html"))//// !== true;
 };
 
-exports.downloadUrls = function(){
+exports.downloadUrls = function(url){
+ request({
+   url: 'http://'+ url,
+   }, function(err, res, body) {
+     console.log("downloadURL success");
+     fs.writeFile(exports.paths.archivedSites+'/'+url+".html", body, function(error){
+       if (error) {console.log("error");};
+     });
+   } 
+ );
 };
