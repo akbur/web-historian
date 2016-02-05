@@ -2,15 +2,16 @@ var path = require('path');
 var archive = require('../helpers/archive-helpers');
 var helper = require('./http-helpers');
 var fs = require('fs');
+var request = require('request');
 // require more modules/folders here!
 var urlArray = [];
 exports.handleRequest = function (req, res) {
   
   if (req.method==="GET") {
     if (req.url==="/") {
-      res.writeHead(200, helper.headers);
-      helper.serveAssets(res, __dirname + '/public/index.html', function(fileContents){
-        console.log(fileContents);
+      res.writeHead(200, helper.headers); 
+      var filePath = path.join(archive.paths.siteAssets, 'index.html');
+      helper.serveAssets(res, filePath, function(fileContents) {
         res.end(fileContents);
       });
     } else {  //if url invalid
@@ -18,35 +19,46 @@ exports.handleRequest = function (req, res) {
       res.end("error")
     }
   } else if (req.method==="POST") {
-    //save urls in an array
+
     req.on("data", function(data) {
       urlArray.push(data.toString());
       res.writeHead(200, helper.headers);
-      console.log(urlArray);
-      fs.appendFile(archive.paths.list, data.toString() + '\n', function(err){
-        if (err) {console.log(err); };
-        res.end();
-      });
+      var url = data.toString();
+      
+      //test
+      request({
+        url: 'http://'+ url,
+        }, function(err, res, body) {
+          console.log(body);
+          //console.log(path.join(helper.archivedSites, url, ".html"));
+          fs.writeFile(archive.paths.archivedSites+'/'+url+".html", body, function(error){
+            if (error) {console.log("error");};
+          });
+        } 
+      );
 
+
+      //end test
+
+      //in sites.txt?
+      archive.isUrlInList(url, function(found) {
+        console.log('found',found);
+        if (found) {
+          //is it archived?
+            //if yes      
+              //display page
+            //if no
+              //display loading
+        } else {
+          //append to sites.txt        
+          archive.addUrlToList(data);
+          //display loading
+        }
+      });
+        res.end();
     });
     //write urls to archives/sites.txt
-  }  
-};
-
-
-exports.readListOfUrls = function(){
-};
-
-exports.isUrlInList = function(){
-};
-
-exports.addUrlToList = function(){
-};
-
-exports.isUrlArchived = function(){
-};
-
-exports.downloadUrls = function(){
+  } 
 };
 
 
