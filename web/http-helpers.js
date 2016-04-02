@@ -10,13 +10,9 @@ exports.headers = headers = {
   'Content-Type': "text/html"
 };
 
-exports.serveAssets = function(res, asset, callback) {
-  fs.readFile(asset, 'utf8', function(err, contents){
+exports.serveAssets = function (res, asset, callback) {
+  fs.readFile(asset, 'utf8', function (err, contents) {
     callback(contents);
   });
 };
-
-
-
-// As you progress, keep thinking about what helper functions you can put here!
   
